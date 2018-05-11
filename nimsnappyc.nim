@@ -1,7 +1,7 @@
 import nimsnappyc/snappyc
 
 type
-  SnappyError = object of Exception
+  SnappyError* = object of Exception
 
 proc snappyCompress*[T](input: T): seq[byte] =
   var

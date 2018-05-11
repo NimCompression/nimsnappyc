@@ -34,6 +34,8 @@ let uncompressedLen = snappyUncompressedLength(compressed)
 let uncompressed = snappyUncompress(compressed)
 ```
 
+Raises the ```SnappyError``` exception on errors.
+
 ## Contributing
 
 1. Fork it (https://github.com/data-man/nimsnappyc/fork)
