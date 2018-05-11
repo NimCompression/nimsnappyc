@@ -44,8 +44,10 @@ let uncompressed = snappyUncompress(compressed)
 
 ## License
 MIT
+
 Author: [Dmitry Atamanov](https://github.com/data-man)
 
 ## Snappy-C License
 BSD 3-Clause License
+
 Author: [Andi Kleen](https://github.com/andikleen)
