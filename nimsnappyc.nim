@@ -3,14 +3,25 @@ import nimsnappyc/snappyc
 type
   SnappyError* = object of Exception
 
-proc snappyCompress*[T](input: T): seq[byte] =
+proc snappyCompress*(input: pointer, inputLen: int): seq[byte] =
   var
-    inputAddr: pointer
-    inputLen: int
     env: SnappyEnv
     compressedLength: csize
 
   if snappy_init_env(env.addr) != 0: raise newException(SnappyError, "Env's init error")
+
+  let maxLen = snappy_max_compressed_length(inputLen)
+  result = newSeqUninitialized[byte](maxLen)
+  let res = snappy_compress(env.addr, input, inputLen,
+                                    result[0].addr, compressedLength.addr)
+  if res != 0: raise newException(SnappyError, "Compress error")
+  snappy_free_env(env.addr)
+  result.setLen(compressedLength)
+
+proc snappyCompress*[T](input: T): seq[byte] =
+  var
+    inputAddr: pointer
+    inputLen: int
 
   when T is string | seq:
     inputAddr = input[0].unsafeAddr
@@ -19,13 +30,7 @@ proc snappyCompress*[T](input: T): seq[byte] =
     inputAddr = input.unsafeAddr
     inputLen = input.sizeof
 
-  let maxLen = snappy_max_compressed_length(inputLen)
-  result = newSeqUninitialized[byte](maxLen)
-  let res = snappy_compress(env.addr, inputAddr, inputLen,
-                                    result[0].addr, compressedLength.addr)
-  if res != 0: raise newException(SnappyError, "Compress error")
-  snappy_free_env(env.addr)
-  result.setLen(compressedLength)
+  result = snappyCompress(inputAddr, inputLen)
 
 proc snappyUncompress*(input: seq[byte]): seq[byte] =
   var
