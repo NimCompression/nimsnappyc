@@ -2,7 +2,7 @@
 
 **NimSnappyC** provides a Snappy compression/decompression for [Nim](https://nim-lang.org) through wrapping to [snappy-c](https://github.com/andikleen/snappy-c).
 
-**[GitHub Repo](https://github.com/data-man/nimsnappyc)**
+**[GitHub Repo](https://github.com/NimCompression/nimsnappyc)**
 
 ## Installation
 
@@ -38,7 +38,7 @@ Raises the ```SnappyError``` exception on errors.
 
 ## Contributing
 
-1. Fork it (https://github.com/data-man/nimsnappyc/fork)
+1. Fork it (https://github.com/NimCompression/nimsnappyc/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -47,7 +47,7 @@ Raises the ```SnappyError``` exception on errors.
 ## License
 MIT
 
-Author: [Dmitry Atamanov](https://github.com/data-man)
+Authors: [NimCompression](https://github.com/NimCompression)
 
 ## Snappy-C License
 BSD 3-Clause License

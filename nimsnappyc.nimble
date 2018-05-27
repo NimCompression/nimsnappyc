@@ -1,6 +1,6 @@
 packageName   = "nimsnappyc"
 version       = "0.0.1"
-author        = "Dmitry Atamanov"
+author        = "NimCompression's members and conributors"
 description   = "Snappy-C lib wrapper for Nim"
 license       = "MIT"
 skipDirs      = @["tests"]
