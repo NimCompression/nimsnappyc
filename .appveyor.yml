@@ -1,0 +1,35 @@
+version: "{build}"
+
+deploy: off
+
+matrix:
+  fast_finish: true
+
+environment:
+  matrix:
+#    - MINGW_PATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32
+#      platform: x32
+
+    - MINGW_PATH: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64
+      platform: x64
+
+install:
+  - setlocal EnableExtensions EnableDelayedExpansion
+  - set path=%MINGW_PATH%\bin;%CD%\Nim\bin;%PATH%
+  - gcc --version
+  - git clone --depth 1 https://github.com/nim-lang/Nim.git
+  - cd Nim
+  - git clone --depth 1 https://github.com/nim-lang/csources
+  - cd csources
+  - if %PLATFORM% == x64 ( build64.bat ) else ( build.bat )
+  - cd ..
+  - bin\nim c koch
+  - koch boot -d:release
+
+build_script:
+  - cd C:\projects\%APPVEYOR_PROJECT_SLUG%
+  - nim c tests\test
+
+test_script:
+  - cd C:\projects\%APPVEYOR_PROJECT_SLUG%
+  - tests\test

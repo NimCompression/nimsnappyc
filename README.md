@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/NimCompression/nimsnappyc.svg?branch=master)](https://travis-ci.org/NimCompression/nimsnappyc)
+[![Build status](https://ci.appveyor.com/api/projects/status/8veiod4jdp1fa81a?svg=true)](https://ci.appveyor.com/project/data-man/nimsnappyc)
+
 # NimSnappyC
 
 **NimSnappyC** provides a Snappy compression/decompression for [Nim](https://nim-lang.org) through wrapping to [snappy-c](https://github.com/andikleen/snappy-c).
