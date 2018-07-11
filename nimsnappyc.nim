@@ -3,20 +3,44 @@ import nimsnappyc/snappyc
 type
   SnappyError* = object of Exception
 
-proc snappyCompress*(input: pointer, inputLen: int): seq[byte] =
+proc snappyMaxCompressedLength*(inputLen: int): int =
+  snappyc.snappy_max_compressed_length(inputLen).int
+
+proc snappyUncompressedLength*(input: string | seq[byte]): uint =
+  var
+    inputAddr = input[0].unsafeAddr
+    inputLen = input.len
+    uncompressedLength: csize
+
+  let res = snappy_uncompressed_length(inputAddr, inputLen, uncompressedLength.addr)
+  if not res: raise newException(SnappyError, "Uncompressed length error")
+
+  result = uncompressedLength.uint
+
+template snappyCompressImpl =
   var
     env: SnappyEnv
     compressedLength: csize
 
   if snappy_init_env(env.addr) != 0: raise newException(SnappyError, "Env's init error")
 
-  let maxLen = snappy_max_compressed_length(inputLen)
-  result = newSeqUninitialized[byte](maxLen)
-  let res = snappy_compress(env.addr, input, inputLen,
+  let res = snappy_compress(env.addr, inputAddr, inputLen,
                                     result[0].addr, compressedLength.addr)
   if res != 0: raise newException(SnappyError, "Compress error")
   snappy_free_env(env.addr)
   result.setLen(compressedLength)
+
+proc snappyCompress*(inputAddr: pointer, inputLen: int): seq[byte] =
+  let maxLen =snappyc.snappy_max_compressed_length(inputLen).int
+  result = newSeqUninitialized[byte](maxLen)
+  snappyCompressImpl
+
+proc snappyCompress*(input: string): string =
+  let inputAddr = input[0].unsafeAddr
+  let inputLen = input.len
+  let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
+  result = newString(maxLen)
+  snappyCompressImpl
 
 proc snappyCompress*[T](input: T): seq[byte] =
   var
@@ -29,33 +53,29 @@ proc snappyCompress*[T](input: T): seq[byte] =
   else:
     inputAddr = input.unsafeAddr
     inputLen = input.sizeof
+  let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
+  result = newSeqUninitialized[byte](maxLen)
+  snappyCompressImpl
 
-  result = snappyCompress(inputAddr, inputLen)
-
-proc snappyUncompress*(input: seq[byte]): seq[byte] =
+template snappyUncompressImpl =
   var
-    inputAddr = input[0].unsafeAddr
-    inputLen = input.len
     uncompressedLength: csize
-
   let res = snappy_uncompressed_length(inputAddr, inputLen, uncompressedLength.addr)
   if not res: raise newException(SnappyError, "Uncompress error")
-
-  result = newSeqUninitialized[byte](uncompressedLength)
 
   let uncompressRes = snappy_uncompress(inputAddr, inputLen, result[0].addr)
   if uncompressRes != 0: raise newException(SnappyError, "Uncompress error")
 
-proc snappyUncompressedLength*(input: seq[byte]): uint =
-  var
+proc snappyUncompress*(input: seq[byte]): seq[byte] =
+  let
     inputAddr = input[0].unsafeAddr
     inputLen = input.len
-    uncompressedLength: csize
+  result = newSeqUninitialized[byte](snappyUncompressedLength(input))
+  snappyUncompressImpl
 
-  let res = snappy_uncompressed_length(inputAddr, inputLen, uncompressedLength.addr)
-  if not res: raise newException(SnappyError, "Uncompressed length error")
-
-  result = uncompressedLength.uint
-
-proc snappyMaxCompressedLength*(inputLen: int): int =
-  snappyc.snappy_max_compressed_length(inputLen).int
+proc snappyUncompress*(input: string): string =
+  let
+    inputAddr = input[0].unsafeAddr
+    inputLen = input.len
+  result = newString(snappyUncompressedLength(input))
+  snappyUncompressImpl
