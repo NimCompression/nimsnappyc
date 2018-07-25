@@ -6,7 +6,7 @@ type
 proc snappyMaxCompressedLength*(inputLen: int): int =
   snappyc.snappy_max_compressed_length(inputLen).int
 
-proc snappyUncompressedLength*(input: string | seq[byte]): uint =
+proc snappyUncompressedLength*(input: string | seq[byte] | openarray[byte]): uint =
   var
     inputAddr = input[0].unsafeAddr
     inputLen = input.len
@@ -47,7 +47,7 @@ proc snappyCompress*[T](input: T): seq[byte] =
     inputAddr: pointer
     inputLen: int
 
-  when T is string | seq:
+  when T is string | seq | openarray:
     inputAddr = input[0].unsafeAddr
     inputLen = input[0].sizeof * input.len
   else:
@@ -66,7 +66,7 @@ template snappyUncompressImpl =
   let uncompressRes = snappy_uncompress(inputAddr, inputLen, result[0].addr)
   if uncompressRes != 0: raise newException(SnappyError, "Uncompress error")
 
-proc snappyUncompress*(input: seq[byte]): seq[byte] =
+proc snappyUncompress*(input: seq[byte] | openarray[byte]): seq[byte] =
   let
     inputAddr = input[0].unsafeAddr
     inputLen = input.len
