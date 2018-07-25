@@ -53,4 +53,4 @@ before_script:
 
 script:
   - nim c --run tests/test
-
+  - nim --cpu:i386 --passC:-m32 --passL:-m32 c --run tests/test

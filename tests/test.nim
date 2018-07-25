@@ -1,6 +1,9 @@
 import nimsnappyc
 import unittest
 
+echo "hostOS: ", hostOS
+echo "hostCPU: ", hostCPU
+
 suite "Snappy tests":
 
   test "Seq compress/uncompress":
