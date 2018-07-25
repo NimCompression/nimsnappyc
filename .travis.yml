@@ -19,7 +19,8 @@ addons:
             - clang-6.0
             - g++-8
             - libstdc++-8-dev
-
+            - gcc-8-multilib
+            - g++-8-multilib
 matrix:
     include:
         - os: linux
