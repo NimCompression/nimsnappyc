@@ -23,3 +23,15 @@ suite "Snappy tests":
     let compressed = snappyCompress(data)
     let uncompressed = snappyUncompress(compressed)
     check data == uncompressed
+
+  test "Empty seq compress/uncompress":
+    let data = newSeq[byte]()
+    let compressed = snappyCompress(data)
+    let uncompressed = snappyUncompress(compressed)
+    check data == uncompressed
+
+  test "Epmty string compress/uncompress":
+    let data = ""
+    let compressed = snappyCompress(data)
+    let uncompressed = snappyUncompress(compressed)
+    check data == uncompressed

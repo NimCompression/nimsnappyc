@@ -31,16 +31,25 @@ template snappyCompressImpl =
   result.setLen(compressedLength)
 
 proc snappyCompress*(inputAddr: pointer, inputLen: int): seq[byte] =
-  let maxLen =snappyc.snappy_max_compressed_length(inputLen).int
-  result = newSeqUninitialized[byte](maxLen)
-  snappyCompressImpl
+  if inputLen == 0:
+    return newSeq[byte]()
+  else:
+    let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
+
+    result = newSeqUninitialized[byte](maxLen)
+    snappyCompressImpl
 
 proc snappyCompress*(input: string): string =
-  let inputAddr = input[0].unsafeAddr
   let inputLen = input.len
-  let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
-  result = newString(maxLen)
-  snappyCompressImpl
+
+  if inputLen == 0:
+    return ""
+  else:
+    let inputAddr = input[0].unsafeAddr
+    let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
+
+    result = newString(maxLen)
+    snappyCompressImpl
 
 proc snappyCompress*[T](input: T): seq[byte] =
   var
@@ -48,12 +57,17 @@ proc snappyCompress*[T](input: T): seq[byte] =
     inputLen: int
 
   when T is string | seq | openarray:
+    if input.len == 0:
+      return newSeq[byte]()
+
     inputAddr = input[0].unsafeAddr
     inputLen = input[0].sizeof * input.len
   else:
     inputAddr = input.unsafeAddr
     inputLen = input.sizeof
+
   let maxLen = snappyc.snappy_max_compressed_length(inputLen).int
+
   result = newSeqUninitialized[byte](maxLen)
   snappyCompressImpl
 
@@ -67,15 +81,23 @@ template snappyUncompressImpl =
   if uncompressRes != 0: raise newException(SnappyError, "Uncompress error")
 
 proc snappyUncompress*(input: seq[byte] | openarray[byte]): seq[byte] =
+  if input.len == 0:
+    return newSeq[byte]()
+
   let
     inputAddr = input[0].unsafeAddr
     inputLen = input.len
+
   result = newSeqUninitialized[byte](snappyUncompressedLength(input))
   snappyUncompressImpl
 
 proc snappyUncompress*(input: string): string =
+  if input.len == 0:
+    return ""
+
   let
     inputAddr = input[0].unsafeAddr
     inputLen = input.len
+
   result = newString(snappyUncompressedLength(input))
   snappyUncompressImpl
